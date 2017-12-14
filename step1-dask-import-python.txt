@@ -1,0 +1,31 @@
+#This step requires Dask
+# I ran it pn the command line using ipython
+
+import dask.dataframe as dd
+import numpy as np
+df2 = dd.read_csv('block_*_nonull.csv',
+                 engine='c',
+                 usecols=['mac','datetime','kwhh'],
+         skiprows=1,header=None,names=['mac','datetime','kwhh'],
+         parse_dates=['datetime'],
+                 dtype={'kwhh': np.float64,
+                       })
+df2.info
+df2['month']= df2['datetime'].dt.to_period("M")
+df_by_month = df2.groupby('month').agg({'kwhh':np.sum}).compute()
+df_by_month.to_csv('kwhh_sum_by_month.csv')
+df_by_month.info()
+df_by_mac = df2.groupby('mac').agg({'kwhh':np.sum}).compute()
+df_by_mac.to_csv('dsk_big_frame_grouped_by_mac.csv')
+
+dfMAC000584=df2[df2['mac'] == 'dfMAC000584'].compute()
+dfMAC000584.to_csv('dfMAC000584.csv')
+
+dfMAC000985=df2[df2['mac'] == 'dfMAC000985'].compute()
+dfMAC000985.to_csv('dfMAC000985.csv')
+
+dfMAC004179=df2[df2['mac'] == 'dfMAC004179'].compute()
+dfMAC004179.to_csv('dfMAC004179.csv')
+
+dfMAC004684=df2[df2['mac'] == 'dfMAC004684'].compute()
+dfMAC004684.to_csv('dfMAC004684.csv')
